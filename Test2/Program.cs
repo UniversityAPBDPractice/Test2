@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Test2.Infrastructure;
 using Test2.Middlewares;
 using Test2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<>(options =>
+builder.Services.AddDbContext<BookContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 

@@ -1,10 +1,12 @@
-﻿namespace Test2.Services;
+﻿using Test2.Services.Abstractions;
+
+namespace Test2.Services;
 
 public static class ServicesDefaultImplementations
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        // services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IBookService, BookService>();
 
         return services;
     }

@@ -28,18 +28,16 @@ public class BookService : IBookService
             .Select(b => new GetBookResponse
             {
                 BookName = b.Name,
-                AuthorId = b.IdAuthor,
-                Authors = a.ActorMovies.Select(am => new MovieDto
+                Genre = b.Genre,
+                Authors = a.ActorMovies.Select(am => new Author
                 {
                     Name = am.Movie.Name,
-                    ReleaseDate = am.Movie.ReleaseDate,
-                    AgeRating = am.Movie.AgeRating.Name,
-                    CharacterName = am.CharacterName
+                    Age = a.Age,
                 }).ToList()
             }).ToListAsync();
     }
 
-    public Task<int> AddBookAsync(AddBookRequest request)
+    public async Task<int> AddBookAsync(AddBookRequest request)
     {
         throw new NotImplementedException();
     }
