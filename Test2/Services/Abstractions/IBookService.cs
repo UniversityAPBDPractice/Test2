@@ -4,6 +4,6 @@ namespace Test2.Services.Abstractions;
 
 public interface IBookService
 {
-    Task<IEnumerable<Book>> GetBooksAsync(DateTime? releasedByDate);
+    Task<IEnumerable<GetBookResponse>> GetBooksAsync(DateTime? releasedByDate);
     Task<int> AddBookAsync(AddBookRequest request);
 }

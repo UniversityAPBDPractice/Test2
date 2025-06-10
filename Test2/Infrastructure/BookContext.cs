@@ -36,81 +36,89 @@ public partial class BookContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PublishingHouse>(entity =>
-        {
-            entity.HasKey(e => e.IdPublishingHouse).HasName("PublishingHouse_pk");
-            entity.HasMany(e => e.Books);
-            entity.ToTable("PublishingHouse");
-
-            entity.Property(e => e.Name).HasMaxLength(120);
-            entity.Property(e => e.Country).HasMaxLength(120);
-            entity.Property(e => e.City).HasMaxLength(120);
-        });
-
         modelBuilder.Entity<Book>(entity =>
         {
-            entity.HasKey(e => new { e.IdBook, e.IdPublishingHouse }).HasName("Book_pk");
-            entity.HasMany(e => e.BookAuthors);
-            entity.HasMany(e => e.BookGenres);
+            entity.HasKey(e => e.IdBook);
+            entity.HasOne(e => e.PublishingHouse)
+                .WithMany(ph => ph.Books)
+                .HasForeignKey(e => e.IdPublishingHouse)
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.ToTable("Book");
-
-            entity.Property(e => e.ReleaseDate).HasColumnType("datetime");
-
-            /*entity.HasOne(d => d.IdPublishingHouse).WithMany(p => p.ClientTrips)
-                .HasForeignKey(d => d.IdPublishingHouse)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("Table_5_Client");*/
         });
 
         modelBuilder.Entity<BookAuthor>(entity =>
         {
-            entity.HasKey(e => e.IdBook).HasName("Country_pk");
-            entity.HasKey(e => e.IdAuthor).HasName("Author_pk");
+            entity.HasKey(e => new { e.IdBook, e.IdAuthor });
+
+            entity.HasOne(ba => ba.Book)
+                .WithMany(b => b.BookAuthors)
+                .HasForeignKey(ba => ba.IdBook);
+
+            entity.HasOne(ba => ba.Author)
+                .WithMany(a => a.BookAuthors)
+                .HasForeignKey(ba => ba.IdAuthor);
 
             entity.ToTable("BookAuthor");
-
-            /*entity.HasMany(d => d.IdTrips).WithMany(p => p.IdCountries)
-                .UsingEntity<Dictionary<string, object>>(
-                    "CountryTrip",
-                    r => r.HasOne<Trip>().WithMany()
-                        .HasForeignKey("IdTrip")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("Country_Trip_Trip"),
-                    l => l.HasOne<Country>().WithMany()
-                        .HasForeignKey("IdCountry")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("Country_Trip_Country"),
-                    j =>
-                    {
-                        j.HasKey("IdCountry", "IdTrip").HasName("Country_Trip_pk");
-                        j.ToTable("Country_Trip");
-                    });*/
-        });
-
-        modelBuilder.Entity<Genre>(entity =>
-        {
-            entity.HasKey(e => e.IdGenre).HasName("Genre_pk");
-            entity.HasMany(e => e.BooksGenres);
-            entity.Property(e => e.Name).HasMaxLength(120);
-            entity.ToTable("Genre");
         });
 
         modelBuilder.Entity<BookGenre>(entity =>
         {
-            entity.HasKey(e => e.IdBook).HasName("BookGenre_pk");
-            entity.HasKey(e => e.IdGenre).HasName("BookGenre_pk");
+            entity.HasKey(bg => new { bg.IdBook, bg.IdGenre });
+
+            entity.HasOne(bg => bg.Book)
+                .WithMany(b => b.BookGenres)
+                .HasForeignKey(bg => bg.IdBook);
+
+            entity.HasOne(bg => bg.Genre)
+                .WithMany(g => g.BookGenres)
+                .HasForeignKey(bg => bg.IdGenre);
+
+            entity.ToTable("BookGenre");
+        });
+
+        modelBuilder.Entity<PublishingHouse>(entity =>
+        {
+            entity.HasKey(e => e.IdPublishingHouse);
+            entity.Property(e => e.Name).HasMaxLength(120);
+            entity.Property(e => e.Country).HasMaxLength(120);
+            entity.Property(e => e.City).HasMaxLength(120);
+            entity.ToTable("PublishingHouse");
         });
 
         modelBuilder.Entity<Author>(entity =>
         {
-            entity.HasKey(e => e.IdAuthor).HasName("Author_pk");
-            entity.HasMany(e => e.BookAuthors);
+            entity.HasKey(e => e.IdAuthor);
             entity.Property(e => e.FirstName).HasMaxLength(120);
             entity.Property(e => e.LastName).HasMaxLength(120);
             entity.ToTable("Author");
         });
 
-        OnModelCreatingPartial(modelBuilder);
+        modelBuilder.Entity<Genre>(entity =>
+        {
+            entity.HasKey(e => e.IdGenre);
+            entity.Property(e => e.Name).HasMaxLength(120);
+            entity.ToTable("Genre");
+        });
+        
+        modelBuilder.Entity<PublishingHouse>().HasData(
+            new PublishingHouse { IdPublishingHouse = 1, Name = "Sanya Press", Country = "UK", City = "London" }
+        );
+        modelBuilder.Entity<Genre>().HasData(
+            new Genre { IdGenre = 1, Name = "My fav genre" }
+        );
+        modelBuilder.Entity<Author>().HasData(
+            new Author { IdAuthor = 1, FirstName = "Sanya", LastName = "Milko" }
+        );
+        modelBuilder.Entity<Book>().HasData(
+            new Book { IdBook = 1, Name = "My book", ReleaseDate = new DateTime(2020, 5, 1), IdPublishingHouse = 1 }
+        );
+        modelBuilder.Entity<BookAuthor>().HasData(
+            new BookAuthor { IdBook = 1, IdAuthor = 1 }
+        );
+        modelBuilder.Entity<BookGenre>().HasData(
+            new BookGenre { IdBook = 1, IdGenre = 1 }
+        );
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
